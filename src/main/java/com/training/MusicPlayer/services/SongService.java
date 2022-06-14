@@ -15,7 +15,8 @@ public class SongService {
     public List<Song> findAll() {
         return repository.findAll();
     }
-    public Optional<Song> findById(Long id) {
+
+    public Optional<Song> findById(String id) {
         return repository.findById(id);
     }
 
@@ -23,5 +24,11 @@ public class SongService {
         repository.save(song);
         return song.getName();
     }
+}
 
+class SortSongByName implements Comparator<Song> {
+    @Override
+    public int compare(Song o1, Song o2) {
+        return o1.getName().compareTo(o2.getName());
+    }
 }
