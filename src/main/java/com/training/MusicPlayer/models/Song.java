@@ -13,18 +13,38 @@ public class Song {
     private String name;
     private String author;
     private String genre;
-
     private String src;
+
+    private String srcId;
     private Date updateAt;
 
     public Song() {
+    }
+
+    public Song(String name, String author, String genre, Date updateAt) {
+        this.name = name;
+        this.author = author;
+        this.genre = genre;
+        this.updateAt = updateAt;
     }
 
     public Song(String name, String author, String genre, String src, Date updateAt) {
         this.name = name;
         this.author = author;
         this.genre = genre;
+        this.src = src;
         this.updateAt = updateAt;
+    }
+
+    public void updateData(Song s) {
+        if (s.getName() != null)
+            this.name = s.getName();
+        if (s.getAuthor() != null)
+            this.author = s.getAuthor();
+        if (s.getSrc() != null)
+            this.src = s.getSrc();
+        if (s.getGenre() != null)
+            this.genre = s.getGenre();
     }
 
     @Override
@@ -77,6 +97,14 @@ public class Song {
 
     public void setSrc(String src) {
         this.src = src;
+    }
+
+    public String getSrcId() {
+        return srcId;
+    }
+
+    public void setSrcId(String srcId) {
+        this.srcId = srcId;
     }
 
     public Date getUpdateAt() {
