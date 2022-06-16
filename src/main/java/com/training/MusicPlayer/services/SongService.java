@@ -117,6 +117,25 @@ public class SongService {
             songUpload.setResourceType((String) uploadResult.get("resource_type"));
         }
 
+        if (songUpload.getFile() != null && !songUpload.getFile().isEmpty()) {
+            uploadResult = cloudinary.uploader().upload(songUpload.getFile().getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto", "folder", "/song"));
+            songUpload.setPublicId((String) uploadResult.get("public_id"));
+            Object version = uploadResult.get("version");
+
+            logger.info("Upload source success: " + uploadResult);
+
+            if (version instanceof Integer) {
+                songUpload.setVersion(Long.valueOf(((Integer) version)));
+            } else {
+                songUpload.setVersion((Long) version);
+            }
+
+            songUpload.setSignature((String) uploadResult.get("signature"));
+            songUpload.setFormat((String) uploadResult.get("format"));
+            songUpload.setResourceType((String) uploadResult.get("resource_type"));
+        }
+
         String songSrcUrl = songUpload.getUrl(cloudinary);
         song.setSrc(songSrcUrl);
         song.setSrcId(songUpload.getPublicId());

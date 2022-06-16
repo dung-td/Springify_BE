@@ -7,7 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class SongUpload extends StoredFile {
     private String title;
-    private MultipartFile file;
+    private MultipartFile src;
+
+    private MultipartFile thumbnail;
     public String getUrl(Cloudinary instance) {
         if (version != null && format != null && publicId != null) {
             return instance.url()
@@ -27,10 +29,18 @@ public class SongUpload extends StoredFile {
     }
 
     public MultipartFile getFile() {
-        return file;
+        return src;
     }
 
     public void setFile(MultipartFile file) {
-        this.file = file;
+        this.src = file;
+    }
+
+    public MultipartFile getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(MultipartFile thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }
