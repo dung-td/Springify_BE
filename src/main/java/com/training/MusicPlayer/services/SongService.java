@@ -51,11 +51,17 @@ public class SongService {
         return song.getName();
     }
 
-    public SongPage getPage(int index, Integer limit, Pageable pageable) {
-        logger.info("Getting page: " + index + " and limit: " + limit);
+    public SongPage getPage(String name, int index, Integer limit, Pageable pageable) {
+        logger.info("Getting page: " + index + " and limit: " + limit + " and name: " + name);
 
         Query query = new Query();
         query.with(pageable);
+        if (name != null) {
+            logger.info("Have name");
+            String regex = "";
+            query.addCriteria(Criteria.where("name").regex(regex));
+        }
+
         query.with(Sort.by(Sort.Direction.DESC, "updateAt"));
 
         SongPage songPage = new SongPage(mongoTemplate.find(query, Song.class, "song"), pageable);
@@ -170,7 +176,6 @@ public class SongService {
         return song;
     }
 
-
     public Song uploadSongThumbnail(Song song, @ModelAttribute SongThumbnailUpload songThumbnailUpload) throws IOException {
         Map uploadResult = null;
 
@@ -199,8 +204,6 @@ public class SongService {
 
         return song;
     }
-
-
 
 }
 

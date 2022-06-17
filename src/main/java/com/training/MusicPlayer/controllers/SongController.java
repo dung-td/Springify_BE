@@ -46,7 +46,8 @@ public class SongController {
     }
 
     @GetMapping(path = "/page")
-    ResponseEntity<ResponseObject> getSongPage(@RequestParam("page") Integer index, @RequestParam("limit") Integer limit) {
+    ResponseEntity<ResponseObject> getSongPage(@RequestParam(required = false, value = "name") String name, @RequestParam("page") Integer index, @RequestParam("limit") Integer limit) {
+
         if (index == null)
             index = 0;
         if (limit == null)
@@ -54,7 +55,7 @@ public class SongController {
 
         Pageable pageable = PageRequest.of(index , limit);
 
-        SongPage page = service.getPage(index, limit, pageable);
+        SongPage page = service.getPage(name, index, limit, pageable);
 
         if (page != null) {
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -88,26 +89,27 @@ public class SongController {
     }
 
     @DeleteMapping(value = "/delete")
-    ResponseEntity<ResponseObject> deleteSong(@RequestParam("id") String id) {
-        if (id != null) {
+    ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") List<String> list) {
+        if (list.size() > 0) {
             Song song = new Song();
-            song.setId(id);
-            String status = "";
-            try {
-                status = service.delete(song);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            for (String s : list) {
+                song.setId(s);
+                String status = "";
+                try {
+                    status = service.delete(song);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
-            if (status.equals("error")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("not-found", "Cannot find song with id: " + song.getId(), null)
-                );
-            } else {
-                return ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("ok", "Success", null)
-                );
+                if (status.equals("error")) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            new ResponseObject("not-found", "Cannot find song with id: " + song.getId(), null)
+                    );
+                }
             }
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Success", null)
+            );
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
                     new ResponseObject("error", "Missing required ID", null)
