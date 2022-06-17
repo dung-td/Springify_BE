@@ -1,12 +1,12 @@
 package com.training.MusicPlayer.controllers;
 
-import com.training.MusicPlayer.models.ResponseObject;
-import com.training.MusicPlayer.models.Song;
-import com.training.MusicPlayer.models.SongUpload;
+import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.services.SongService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,11 +52,13 @@ public class SongController {
         if (limit == null)
             limit = 4;
 
-        List<Song> song = service.getPage(index, limit);
+        Pageable pageable = PageRequest.of(index , limit);
 
-        if (song != null) {
+        SongPage page = service.getPage(index, limit, pageable);
+
+        if (page != null) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "Success", song)
+                    new ResponseObject("ok", "Success", page)
             );
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -116,17 +118,29 @@ public class SongController {
     }
 
     @PostMapping(value = "/upload")
-    public ResponseEntity<ResponseObject> uploadFile(@RequestParam MultipartFile src, @RequestParam String name, @RequestParam String author, @RequestParam String genre) {
+    public ResponseEntity<ResponseObject> uploadFile(@RequestParam MultipartFile src, @RequestParam(required = false) MultipartFile thumbnail, @RequestParam String name, @RequestParam String author, @RequestParam String genre) {
         logger.info(String.format("File name '%s' with name '%s' author '%s' genre '%s' uploaded successfully.", src.getOriginalFilename(), name, author, genre));
 
-        SongUpload songUpload = new SongUpload();
-        songUpload.setFile(src);
-        songUpload.setTitle(name);
+        SongSourceUpload songSourceUpload = new SongSourceUpload();
+        songSourceUpload.setFile(src);
+        songSourceUpload.setTitle(name);
+
+        SongThumbnailUpload songThumbnailUpload = new SongThumbnailUpload();
+        songThumbnailUpload.setFile(thumbnail);
+        songThumbnailUpload.setTitle(name);
 
         Song song = new Song(name, author, genre, new Date());
 
+        logger.info("Thumbail: " + thumbnail.getSize());
+
         try {
-            Song afterUpload = service.uploadSong(song, songUpload);
+            Song afterUpload = service.uploadSongSource(song, songSourceUpload);
+            if (songThumbnailUpload.getFile() != null) {
+                afterUpload = service.uploadSongThumbnail(song, songThumbnailUpload);
+            }
+
+            service.save(afterUpload);
+
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Success", afterUpload)
             );
@@ -135,5 +149,13 @@ public class SongController {
                     new ResponseObject("error", "Error while upload file", null)
             );
         }
+    }
+
+
+    @GetMapping(value = "/getAll")
+    ResponseEntity<ResponseObject> getAllSongs(@RequestParam("id") String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "success", service.getRelatedSong(id))
+        );
     }
 }

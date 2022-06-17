@@ -3,15 +3,21 @@ package com.training.MusicPlayer.services;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.training.MusicPlayer.models.Song;
-import com.training.MusicPlayer.models.SongUpload;
+import com.training.MusicPlayer.models.SongPage;
+import com.training.MusicPlayer.models.SongSourceUpload;
+import com.training.MusicPlayer.models.SongThumbnailUpload;
 import com.training.MusicPlayer.repositories.SongRepository;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -21,7 +27,8 @@ import java.util.*;
 public class SongService {
     @Autowired
     private SongRepository repository;
-
+    @Autowired
+    private MongoTemplate mongoTemplate;
     private final Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
             "cloud_name", "dungtd",
             "api_key", "553685374214836",
@@ -30,7 +37,9 @@ public class SongService {
 
 
     public List<Song> findAll() {
-        return repository.findAll();
+        Query query = new Query();
+        query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
+        return mongoTemplate.find(query, Song.class, "song");
     }
 
     public Optional<Song> findById(String id) {
@@ -42,22 +51,16 @@ public class SongService {
         return song.getName();
     }
 
-    public List<Song> getPage(Integer index, Integer limit) {
+    public SongPage getPage(int index, Integer limit, Pageable pageable) {
         logger.info("Getting page: " + index + " and limit: " + limit);
-        List<Song> songs = repository.findAll();
-        int max_page = (int) Math.ceil((float) songs.size() / limit);
 
-        if (index > max_page) {
-          return null;
-        } else {
-            songs = songs.stream().skip((long) (index - 1) * limit).collect(Collectors.toList());
-            if (limit > songs.size())
-                limit = songs.size();
+        Query query = new Query();
+        query.with(pageable);
+        query.with(Sort.by(Sort.Direction.DESC, "updateAt"));
 
-            songs = songs.subList(0, limit);
+        SongPage songPage = new SongPage(mongoTemplate.find(query, Song.class, "song"), pageable);
 
-            return songs;
-        }
+        return songPage;
     }
 
     public Song editSong(Song song) {
@@ -86,36 +89,57 @@ public class SongService {
             logger.info(deleteResult.toString());
         }
 
+        if (songToDelete.get().getThumbnailId() != null) {
+            deleteResult = cloudinary.uploader().destroy(songToDelete.get().getThumbnailId(),  ObjectUtils.asMap("resource_type", "image"));
+
+            logger.info(deleteResult.toString());
+        }
+
         if (songToDelete.isPresent()) {
             repository.delete(songToDelete.get());
             return "success";
         } else {
             return "error";
         }
-
     }
 
-    public Song uploadSong(Song song, @ModelAttribute SongUpload songUpload) throws IOException {
-        Map uploadResult = null;
-
-        if (songUpload.getFile() != null && !songUpload.getFile().isEmpty()) {
-            uploadResult = cloudinary.uploader().upload(songUpload.getFile().getBytes(),
-                    ObjectUtils.asMap("resource_type", "auto", "folder", "/song"));
-            songUpload.setPublicId((String) uploadResult.get("public_id"));
-            Object version = uploadResult.get("version");
-
-            logger.info("Upload source success: " + uploadResult);
-
-            if (version instanceof Integer) {
-                songUpload.setVersion(Long.valueOf(((Integer) version)));
-            } else {
-                songUpload.setVersion((Long) version);
-            }
-
-            songUpload.setSignature((String) uploadResult.get("signature"));
-            songUpload.setFormat((String) uploadResult.get("format"));
-            songUpload.setResourceType((String) uploadResult.get("resource_type"));
+    public List<Song> getRelatedSong(String songId) {
+        logger.info("Getting next song for song: " + songId);
+        List<Song> related = new ArrayList<>();
+        Song song = mongoTemplate.findById(songId, Song.class, "song");
+        if (song == null) {
+            return null;
         }
+        Query queryNext = new Query();
+        queryNext.addCriteria(Criteria.where("updateAt").gt(song.getUpdateAt()));
+        queryNext.with(Sort.by(Sort.Direction.ASC, "updateAt"));
+        List<Song> nextSongs = mongoTemplate.find(queryNext, Song.class, "song");
+
+
+        if (nextSongs.size() > 0) {
+            related.add(nextSongs.get(0));
+        } else {
+            queryNext = new Query();
+            queryNext.with(Sort.by(Sort.Direction.ASC, "updateAt"));
+            related.add(mongoTemplate.find(queryNext, Song.class, "song").get(0));
+        }
+
+        Query queryPrevious = new Query();
+        queryPrevious.addCriteria(Criteria.where("updateAt").lt(song.getUpdateAt()));
+        queryPrevious.with(Sort.by(Sort.Direction.DESC, "updateAt"));
+        List<Song> previousSongs = mongoTemplate.find(queryPrevious, Song.class, "song");
+
+        if (previousSongs.size() > 0) {
+            related.add(previousSongs.get(0));
+        }
+
+
+        logger.info("Result:" + related);
+        return related;
+    }
+
+    public Song uploadSongSource(Song song, @ModelAttribute SongSourceUpload songUpload) throws IOException {
+        Map uploadResult = null;
 
         if (songUpload.getFile() != null && !songUpload.getFile().isEmpty()) {
             uploadResult = cloudinary.uploader().upload(songUpload.getFile().getBytes(),
@@ -140,10 +164,40 @@ public class SongService {
         song.setSrc(songSrcUrl);
         song.setSrcId(songUpload.getPublicId());
 
-        this.save(song);
+        return song;
+    }
+
+
+    public Song uploadSongThumbnail(Song song, @ModelAttribute SongThumbnailUpload songThumbnailUpload) throws IOException {
+        Map uploadResult = null;
+
+        if (songThumbnailUpload.getFile() != null && !songThumbnailUpload.getFile().isEmpty()) {
+            uploadResult = cloudinary.uploader().upload(songThumbnailUpload.getFile().getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto", "folder", "/thumbnail"));
+            songThumbnailUpload.setPublicId((String) uploadResult.get("public_id"));
+            Object version = uploadResult.get("version");
+
+            logger.info("Upload source success: " + uploadResult);
+
+            if (version instanceof Integer) {
+                songThumbnailUpload.setVersion(Long.valueOf(((Integer) version)));
+            } else {
+                songThumbnailUpload.setVersion((Long) version);
+            }
+
+            songThumbnailUpload.setSignature((String) uploadResult.get("signature"));
+            songThumbnailUpload.setFormat((String) uploadResult.get("format"));
+            songThumbnailUpload.setResourceType((String) uploadResult.get("resource_type"));
+        }
+
+        String songThumbUrl = songThumbnailUpload.getUrl(cloudinary);
+        song.setThumbnail(songThumbUrl);
+        song.setThumbnailId(songThumbnailUpload.getPublicId());
 
         return song;
     }
+
+
 
 }
 

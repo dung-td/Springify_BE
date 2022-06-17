@@ -5,11 +5,9 @@ import com.cloudinary.StoredFile;
 import com.cloudinary.Transformation;
 import org.springframework.web.multipart.MultipartFile;
 
-public class SongUpload extends StoredFile {
+public class SongSourceUpload extends StoredFile {
     private String title;
-    private MultipartFile src;
-
-    private MultipartFile thumbnail;
+    private MultipartFile file;
     public String getUrl(Cloudinary instance) {
         if (version != null && format != null && publicId != null) {
             return instance.url()
@@ -29,18 +27,10 @@ public class SongUpload extends StoredFile {
     }
 
     public MultipartFile getFile() {
-        return src;
+        return file;
     }
 
     public void setFile(MultipartFile file) {
-        this.src = file;
-    }
-
-    public MultipartFile getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(MultipartFile thumbnail) {
-        this.thumbnail = thumbnail;
+        this.file = file;
     }
 }

@@ -1,7 +1,6 @@
 package com.training.MusicPlayer.database;
 
 import com.training.MusicPlayer.models.Song;
-import com.training.MusicPlayer.models.SongUpload;
 import com.training.MusicPlayer.services.SongService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

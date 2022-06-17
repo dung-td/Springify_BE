@@ -16,6 +16,7 @@ public class Song {
     private String src;
     private String srcId;
     private String thumbnail;
+    private String thumbnailId;
     private Date updateAt;
 
     public Song() {
@@ -28,12 +29,11 @@ public class Song {
         this.updateAt = updateAt;
     }
 
-    public Song(String name, String author, String genre, String src, String thumbnail, Date updateAt) {
+    public Song(String name, String author, String genre, String src, Date updateAt) {
         this.name = name;
         this.author = author;
         this.genre = genre;
         this.src = src;
-        this.thumbnail = thumbnail;
         this.updateAt = updateAt;
     }
 
@@ -114,6 +114,14 @@ public class Song {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getThumbnailId() {
+        return thumbnailId;
+    }
+
+    public void setThumbnailId(String thumbnailId) {
+        this.thumbnailId = thumbnailId;
     }
 
     public Date getUpdateAt() {
