@@ -131,8 +131,11 @@ public class SongService {
 
         if (previousSongs.size() > 0) {
             related.add(previousSongs.get(0));
+        } else {
+            queryPrevious = new Query();
+            queryPrevious.with(Sort.by(Sort.Direction.DESC, "updateAt"));
+            related.add(mongoTemplate.find(queryPrevious, Song.class, "song").get(0));
         }
-
 
         logger.info("Result:" + related);
         return related;

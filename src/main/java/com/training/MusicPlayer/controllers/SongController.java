@@ -152,7 +152,7 @@ public class SongController {
     }
 
 
-    @GetMapping(value = "/getAll")
+    @GetMapping(value = "/getRelated")
     ResponseEntity<ResponseObject> getAllSongs(@RequestParam("id") String id) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "success", service.getRelatedSong(id))
