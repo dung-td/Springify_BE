@@ -57,9 +57,8 @@ public class SongService {
         Query query = new Query();
         query.with(pageable);
         if (name != null) {
-            logger.info("Have name");
-            String regex = "";
-            query.addCriteria(Criteria.where("name").regex(regex));
+            logger.info("Have name: " + name);
+            query.addCriteria(Criteria.where("name").regex(name, "i"));
         }
 
         query.with(Sort.by(Sort.Direction.DESC, "updateAt"));
@@ -101,12 +100,8 @@ public class SongService {
             logger.info(deleteResult.toString());
         }
 
-        if (songToDelete.isPresent()) {
-            repository.delete(songToDelete.get());
-            return "success";
-        } else {
-            return "error";
-        }
+        repository.delete(songToDelete.get());
+        return "success";
     }
 
     public List<Song> getRelatedSong(String songId) {

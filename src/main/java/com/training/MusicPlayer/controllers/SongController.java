@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +24,16 @@ public class SongController {
     private SongService service;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
-
-
     @GetMapping(path = "/all")
     ResponseEntity<ResponseObject> getAll() {
+        logger.info("Getting song list:...");
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Success", service.findAll())
         );
     }
 
-    @GetMapping(path = "")
+    @GetMapping(path = "/get")
     ResponseEntity<ResponseObject> getById(@RequestParam("id") String id) {
         Optional<Song> song = service.findById(id);
 
@@ -52,6 +54,8 @@ public class SongController {
             index = 0;
         if (limit == null)
             limit = 4;
+        if (name == null)
+            name = "";
 
         Pageable pageable = PageRequest.of(index , limit);
 
