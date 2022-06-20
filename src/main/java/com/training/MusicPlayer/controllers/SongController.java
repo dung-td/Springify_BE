@@ -1,6 +1,7 @@
 package com.training.MusicPlayer.controllers;
 
 import com.training.MusicPlayer.models.*;
+import com.training.MusicPlayer.services.GenreService;
 import com.training.MusicPlayer.services.SongService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import java.util.*;
 public class SongController {
     @Autowired
     private SongService service;
+    @Autowired
+    private GenreService genreService;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(path = "/all")
@@ -35,9 +38,9 @@ public class SongController {
 
     @GetMapping(path = "/get")
     ResponseEntity<ResponseObject> getById(@RequestParam("id") String id) {
-        Optional<Song> song = service.findById(id);
+        SongDto song = service.findById(id);
 
-        if (song.isPresent()) {
+        if (song != null) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Success", song)
             );
@@ -157,11 +160,20 @@ public class SongController {
         }
     }
 
-
     @GetMapping(value = "/getRelated")
     ResponseEntity<ResponseObject> getAllSongs(@RequestParam("id") String id) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "success", service.getRelatedSong(id))
+        );
+    }
+
+
+    @GetMapping(value = "/genre/all")
+    ResponseEntity<ResponseObject> getAllGenres() {
+        logger.info("Getting genre list:...");
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Success", genreService.getAllGenre())
         );
     }
 }

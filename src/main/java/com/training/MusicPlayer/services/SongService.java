@@ -2,10 +2,7 @@ package com.training.MusicPlayer.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.training.MusicPlayer.models.Song;
-import com.training.MusicPlayer.models.SongPage;
-import com.training.MusicPlayer.models.SongSourceUpload;
-import com.training.MusicPlayer.models.SongThumbnailUpload;
+import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.repositories.SongRepository;
 
 import java.io.IOException;
@@ -29,21 +26,34 @@ public class SongService {
     private SongRepository repository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private GenreService genreService;
     private final Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
             "cloud_name", "dungtd",
             "api_key", "553685374214836",
             "api_secret", "QLOlTiPPPESG9iyQhzG634GfhBQ"));
     private static final Logger logger = LoggerFactory.getLogger(SongService.class);
-
-
-    public List<Song> findAll() {
+    public List<SongDto> findAll() {
         Query query = new Query();
         query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
-        return mongoTemplate.find(query, Song.class, "song");
+
+        List<Song> songs = mongoTemplate.find(query, Song.class, "song");
+        List<SongDto> songsDto = new ArrayList<>();
+        SongDto songDto = new SongDto();
+        for (Song s:
+             songs) {
+            songDto.clone(s);
+            songDto.setGenre(genreService.getById(s.getGenre()).get());
+            songsDto.add(songDto);
+        }
+
+        return songsDto;
     }
 
-    public Optional<Song> findById(String id) {
-        return repository.findById(id);
+    public SongDto findById(String id) {
+        SongDto songDto = new SongDto();
+        songDto.clone(repository.findById(id).get());
+        return songDto;
     }
 
     public String save(Song song) {
