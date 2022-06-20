@@ -74,6 +74,7 @@ public class SongService {
 
         if (songToUpdate.isPresent()) {
             songToUpdate.get().updateData(song);
+            songToUpdate.get().setUpdateAt(new Date());
             repository.save(songToUpdate.get());
             return songToUpdate.get();
         } else {
