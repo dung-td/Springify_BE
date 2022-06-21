@@ -1,11 +1,10 @@
-package com.training.MusicPlayer.models;
+package com.training.MusicPlayer.utils;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.StoredFile;
-import com.cloudinary.Transformation;
 import org.springframework.web.multipart.MultipartFile;
 
-public class SongSourceUpload extends StoredFile {
+public class SongThumbnailUpload extends StoredFile  {
     private String title;
     private MultipartFile file;
     public String getUrl(Cloudinary instance) {

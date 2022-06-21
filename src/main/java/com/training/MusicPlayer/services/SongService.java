@@ -2,11 +2,12 @@ package com.training.MusicPlayer.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.training.MusicPlayer.dto.SongDto;
 import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.repositories.SongRepository;
-
 import java.io.IOException;
-
+import com.training.MusicPlayer.utils.SongSourceUpload;
+import com.training.MusicPlayer.utils.SongThumbnailUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class SongService {
             "api_key", "553685374214836",
             "api_secret", "QLOlTiPPPESG9iyQhzG634GfhBQ"));
     private static final Logger logger = LoggerFactory.getLogger(SongService.class);
-    public List<SongDto> findAll() {
+    public List<SongDto> findAllDto() {
         Query query = new Query();
         query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
 
@@ -49,11 +50,31 @@ public class SongService {
 
         return songsDto;
     }
+    public List<Song> findAll() {
+        Query query = new Query();
+        query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
+
+
+        return mongoTemplate.find(query, Song.class, "song");
+    }
+
 
     public SongDto findById(String id) {
         SongDto songDto = new SongDto();
-        songDto.clone(repository.findById(id).get());
-        return songDto;
+        Optional<Song> song = repository.findById(id);
+        if (song.isPresent()) {
+            songDto.clone(song.get());
+            Optional<Genre> genre = genreService.getById(song.get().getGenre());
+
+            if (genre.isPresent()) {
+                songDto.setGenre(genre.get());
+                return songDto;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     public String save(Song song) {

@@ -1,4 +1,8 @@
-package com.training.MusicPlayer.models;
+package com.training.MusicPlayer.dto;
+
+import com.training.MusicPlayer.models.Author;
+import com.training.MusicPlayer.models.Genre;
+import com.training.MusicPlayer.models.Song;
 
 import javax.persistence.Id;
 import java.util.Date;
@@ -6,7 +10,7 @@ import java.util.Date;
 public class SongDto {
     private String id;
     private String name;
-    private String author;
+    private Author author;
     private Genre genre;
     private String src;
     private String thumbnail;
@@ -17,14 +21,13 @@ public class SongDto {
 
     public void clone(Song song) {
         this.id = song.getId();
-        this.author = song.getAuthor();
         this.name = song.getName();
         this.src = song.getSrc();
         this.thumbnail = song.getThumbnail();
         this.updateAt = song.getUpdateAt();
     }
 
-    public SongDto(String id, String name, String author, Genre genre, String src, String thumbnail, Date updateAt) {
+    public SongDto(String id, String name, Author author, Genre genre, String src, String thumbnail, Date updateAt) {
         this.id = id;
         this.name = name;
         this.author = author;
@@ -50,11 +53,11 @@ public class SongDto {
         this.name = name;
     }
 
-    public String getAuthor() {
+    public Author getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(Author author) {
         this.author = author;
     }
 

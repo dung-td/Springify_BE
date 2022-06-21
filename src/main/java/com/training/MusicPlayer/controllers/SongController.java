@@ -1,15 +1,17 @@
 package com.training.MusicPlayer.controllers;
 
+import com.training.MusicPlayer.dto.SongDto;
 import com.training.MusicPlayer.models.*;
+import com.training.MusicPlayer.response.ResponseObject;
 import com.training.MusicPlayer.services.GenreService;
 import com.training.MusicPlayer.services.SongService;
+import com.training.MusicPlayer.utils.SongSourceUpload;
+import com.training.MusicPlayer.utils.SongThumbnailUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +34,7 @@ public class SongController {
         logger.info("Getting song list:...");
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", service.findAll())
+                new ResponseObject("ok", "Success", service.findAllDto())
         );
     }
 
@@ -148,7 +150,7 @@ public class SongController {
                 afterUpload = service.uploadSongThumbnail(song, songThumbnailUpload);
             }
 
-            service.save(afterUpload);
+            logger.info("Saving...:" + service.save(afterUpload)) ;
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Success", afterUpload)
@@ -167,13 +169,12 @@ public class SongController {
         );
     }
 
-
     @GetMapping(value = "/genre/all")
     ResponseEntity<ResponseObject> getAllGenres() {
         logger.info("Getting genre list:...");
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", genreService.getAllGenre())
+                new ResponseObject("ok", "Success", genreService.getAll())
         );
     }
 }

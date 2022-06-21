@@ -1,5 +1,6 @@
 package com.training.MusicPlayer.models;
 
+import com.training.MusicPlayer.dto.SongDto;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.cloudinary.StoredFile;
@@ -20,6 +21,16 @@ public class Song {
     private Date updateAt;
 
     public Song() {
+    }
+
+    public void clone(SongDto songDto) {
+        this.id = songDto.getId();
+        this.name = songDto.getName();
+        this.author = songDto.getAuthor().getId();
+        this.genre = songDto.getGenre().getId();
+        this.src = songDto.getSrc();
+        this.thumbnail = songDto.getThumbnail();
+        this.updateAt = songDto.getUpdateAt();
     }
 
     public Song(String name, String author, String genre, Date updateAt) {

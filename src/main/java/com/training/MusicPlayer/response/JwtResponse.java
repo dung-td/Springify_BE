@@ -1,4 +1,4 @@
-package com.training.MusicPlayer.models;
+package com.training.MusicPlayer.response;
 
 public class JwtResponse {
     private String token;

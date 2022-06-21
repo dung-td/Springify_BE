@@ -2,11 +2,10 @@ package com.training.MusicPlayer.controllers;
 
 
 import com.training.MusicPlayer.models.CustomUserDetails;
-import com.training.MusicPlayer.models.JwtResponse;
-import com.training.MusicPlayer.models.ResponseObject;
+import com.training.MusicPlayer.response.JwtResponse;
+import com.training.MusicPlayer.response.ResponseObject;
 import com.training.MusicPlayer.models.User;
 import com.training.MusicPlayer.utils.JwtToken;
-import org.cloudinary.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -1,5 +1,6 @@
 package com.training.MusicPlayer.models;
 
+import com.training.MusicPlayer.dto.SongDto;
 import org.springframework.data.domain.Pageable;
 import java.util.*;
 

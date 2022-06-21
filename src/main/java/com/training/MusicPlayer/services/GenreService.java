@@ -21,7 +21,7 @@ public class GenreService {
     public Optional<Genre> getById(String id) {
         return repository.findById(id);
     }
-    public List<Genre> getAllGenre() {
+    public List<Genre> getAll() {
         return repository.findAll();
     }
     public String save(Genre genre) {
