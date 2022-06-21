@@ -4,19 +4,19 @@ import org.springframework.data.domain.Pageable;
 import java.util.*;
 
 public class SongPage {
-    private List<Song> songs;
+    private List<SongDto> songs;
     private Pageable pageable;
 
-    public SongPage(List<Song> songs, Pageable pageable) {
+    public SongPage(List<SongDto> songs, Pageable pageable) {
         this.songs = songs;
         this.pageable = pageable;
     }
 
-    public List<Song> getSongs() {
+    public List<SongDto> getSongs() {
         return songs;
     }
 
-    public void setSongs(List<Song> songs) {
+    public void setSongs(List<SongDto> songs) {
         this.songs = songs;
     }
 

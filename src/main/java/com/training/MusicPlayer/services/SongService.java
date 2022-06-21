@@ -73,7 +73,18 @@ public class SongService {
 
         query.with(Sort.by(Sort.Direction.DESC, "updateAt"));
 
-        SongPage songPage = new SongPage(mongoTemplate.find(query, Song.class, "song"), pageable);
+        List<Song> songs = mongoTemplate.find(query, Song.class, "song");
+        List<SongDto> songsDto = new ArrayList<>();
+        for (Song s:
+                songs) {
+            SongDto songDto = new SongDto();
+            songDto.clone(s);
+            songDto.setGenre(genreService.getById(s.getGenre()).get());
+
+            songsDto.add(songDto);
+        }
+
+        SongPage songPage = new SongPage(songsDto, pageable);
 
         return songPage;
     }
@@ -115,9 +126,9 @@ public class SongService {
         return "success";
     }
 
-    public List<Song> getRelatedSong(String songId) {
+    public List<SongDto> getRelatedSong(String songId) {
         logger.info("Getting next song for song: " + songId);
-        List<Song> related = new ArrayList<>();
+        List<SongDto> related = new ArrayList<>();
         Song song = mongoTemplate.findById(songId, Song.class, "song");
         if (song == null) {
             return null;
@@ -127,14 +138,31 @@ public class SongService {
         queryNext.with(Sort.by(Sort.Direction.ASC, "updateAt"));
         List<Song> nextSongs = mongoTemplate.find(queryNext, Song.class, "song");
 
+        SongDto songDtoNext = new SongDto();
+
+
+        logger.info("NextSong: " + nextSongs);
 
         if (nextSongs.size() > 0) {
-            related.add(nextSongs.get(0));
+            songDtoNext.clone(nextSongs.get(0));
+            Optional<Genre> genre = genreService.getById(nextSongs.get(0).getGenre());
+            songDtoNext.setGenre(genre.get());
+            related.add(songDtoNext);
+
+            logger.info("List updated next 1: " + songDtoNext);
         } else {
             queryNext = new Query();
             queryNext.with(Sort.by(Sort.Direction.ASC, "updateAt"));
-            related.add(mongoTemplate.find(queryNext, Song.class, "song").get(0));
+            Song s = mongoTemplate.find(queryNext, Song.class, "song").get(0);
+            songDtoNext.clone(s);
+            songDtoNext.setGenre(genreService.getById(s.getGenre()).get());
+            related.add(songDtoNext);
+
+            logger.info("List updated next 2: " + songDtoNext);
+
         }
+
+        SongDto songDtoPrevious = new SongDto();
 
         Query queryPrevious = new Query();
         queryPrevious.addCriteria(Criteria.where("updateAt").lt(song.getUpdateAt()));
@@ -142,14 +170,25 @@ public class SongService {
         List<Song> previousSongs = mongoTemplate.find(queryPrevious, Song.class, "song");
 
         if (previousSongs.size() > 0) {
-            related.add(previousSongs.get(0));
+            songDtoPrevious.clone(previousSongs.get(0));
+            Optional<Genre> genre = genreService.getById(previousSongs.get(0).getGenre());
+            songDtoPrevious.setGenre(genre.get());
+
+            related.add(songDtoPrevious);
+            logger.info("List updated previous 1: " + songDtoPrevious);
+
         } else {
             queryPrevious = new Query();
             queryPrevious.with(Sort.by(Sort.Direction.DESC, "updateAt"));
-            related.add(mongoTemplate.find(queryPrevious, Song.class, "song").get(0));
+            Song s = mongoTemplate.find(queryPrevious, Song.class, "song").get(0);
+            songDtoPrevious.clone(s);
+            songDtoPrevious.setGenre(genreService.getById(s.getGenre()).get());
+            related.add(songDtoPrevious);
+
+            logger.info("List updated previous 2: " + songDtoPrevious);
         }
 
-        logger.info("Result:" + related);
+        logger.info("Result:" + related.toString());
         return related;
     }
 
