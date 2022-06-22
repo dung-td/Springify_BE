@@ -26,10 +26,6 @@ import java.util.*;
 public class SongController {
     @Autowired
     private SongService service;
-    @Autowired
-    private GenreService genreService;
-    @Autowired
-    private AuthorService authorService;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(path = "/all")
@@ -56,7 +52,12 @@ public class SongController {
     }
 
     @GetMapping(path = "/page")
-    ResponseEntity<ResponseObject> getSongPage(@RequestParam(required = false, value = "name") String name, @RequestParam("page") Integer index, @RequestParam("limit") Integer limit) {
+    ResponseEntity<ResponseObject> getSongPage(
+            @RequestParam(required = false, value = "name") String name,
+            @RequestParam(required = false, value = "author") String author,
+            @RequestParam(required = false, value = "genre") String genre,
+            @RequestParam("page") Integer index,
+            @RequestParam("limit") Integer limit) {
 
         if (index == null)
             index = 0;
@@ -64,10 +65,14 @@ public class SongController {
             limit = 4;
         if (name == null)
             name = "";
+        if (author == null)
+            author = "";
+        if (genre == null)
+            genre = "";
 
         Pageable pageable = PageRequest.of(index , limit);
 
-        SongPage page = service.getPage(name, index, limit, pageable);
+        SongPage page = service.getPage(name, author, genre, index, limit, pageable);
 
         if (page != null) {
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -127,8 +132,6 @@ public class SongController {
                     new ResponseObject("error", "Missing required ID", null)
             );
         }
-
-
     }
 
     @PostMapping(value = "/upload")
@@ -172,21 +175,7 @@ public class SongController {
         );
     }
 
-    @GetMapping(value = "/genre/all")
-    ResponseEntity<ResponseObject> getAllGenres() {
-        logger.info("Getting genre list:...");
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", genreService.getAll())
-        );
-    }
 
-    @GetMapping(value = "/author/all")
-    ResponseEntity<ResponseObject> getAllAuthors() {
-        logger.info("Getting author list:...");
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", authorService.getAll())
-        );
-    }
 }

@@ -87,19 +87,27 @@ public class SongService {
         return song.getName();
     }
 
-    public SongPage getPage(String name, int index, Integer limit, Pageable pageable) {
-        logger.info("Getting page: " + index + " and limit: " + limit + " and name: " + name);
+    public SongPage getPage(String name, String author, String genre, int index, Integer limit, Pageable pageable) {
+        logger.info("Getting page: " + index + " and limit: " + limit + " and name: " + name + " and author:" + author + " and genre: " + genre);
 
         Query query = new Query();
         query.with(pageable);
-        if (name != null) {
-            logger.info("Have name: " + name);
+
+        if (!name.equals("")) {
             query.addCriteria(Criteria.where("name").regex(name, "i"));
+        }
+        if (!author.equals("")) {
+            query.addCriteria(Criteria.where("author").regex(author, "i"));
+        }
+        if (!genre.equals("")) {
+            query.addCriteria(Criteria.where("genre").regex(genre, "i"));
         }
 
         query.with(Sort.by(Sort.Direction.DESC, "updateAt"));
 
         List<Song> songs = mongoTemplate.find(query, Song.class, "song");
+
+        logger.info("Songs in page: " + songs.size());
         List<SongDto> songsDto = new ArrayList<>();
         for (Song s:
                 songs) {

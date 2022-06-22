@@ -8,6 +8,11 @@ public class ResponseObject {
     public ResponseObject() {
     }
 
+    public ResponseObject(String status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
     public ResponseObject(String status, String message, Object object) {
         this.status = status;
         this.message = message;

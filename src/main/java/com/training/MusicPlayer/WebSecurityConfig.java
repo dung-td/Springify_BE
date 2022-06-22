@@ -70,8 +70,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/api/music/get",
                             "/api/music/page",
                             "/api/music/getRelated",
-                            "/api/music/genre/all",
-                            "/api/music/author/all").permitAll()
+                            "/api/genre/all",
+                            "/api/author/all").permitAll()
                     .anyRequest().authenticated().and().csrf().disable();
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -5,6 +5,7 @@ import com.training.MusicPlayer.repositories.AuthorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,20 +25,40 @@ public class AuthorService {
         return repository.findById(id);
     }
     public List<Author> getAll() {
-        return repository.findAll();
-    }
-    public List<Author> findByName(String name) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("name").regex(name,"i"));
+        query.with(Sort.by(Sort.Direction.ASC, "name"));
 
         return mongoTemplate.find(query, Author.class, "author");
     }
-    public String save(Author author) {
+    public List<Author> findByName(String name) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("name").regex( "/^" + name + "$/",""));
+
+
+        return mongoTemplate.find(query, Author.class, "author");
+    }
+    public Author save(Author author) {
         if (findByName(author.getName()).size() > 0) {
-            return "error";
+            return null;
         } else {
             repository.save(author);
-            return author.getName();
+            return author;
+        }
+    }
+    public String delete(String id) {
+        if (getById(id).isPresent()) {
+            repository.deleteById(id);
+            return "OK";
+        } else {
+            return "NOT_FOUND";
+        }
+    }
+    public Author update(Author author) {
+        if (findByName(author.getName()).size() > 0) {
+            return null;
+        } else {
+            repository.save(author);
+            return author;
         }
     }
 }
