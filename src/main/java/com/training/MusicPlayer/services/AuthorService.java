@@ -20,14 +20,12 @@ public class AuthorService {
     private AuthorRepository repository;
     @Autowired
     private MongoTemplate mongoTemplate;
-
     public Optional<Author> getById(String id) {
         return repository.findById(id);
     }
     public List<Author> getAll() {
         return repository.findAll();
     }
-
     public List<Author> findByName(String name) {
         Query query = new Query();
         query.addCriteria(Criteria.where("name").regex(name,"i"));

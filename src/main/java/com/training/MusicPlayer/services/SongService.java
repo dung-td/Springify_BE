@@ -29,6 +29,8 @@ public class SongService {
     private MongoTemplate mongoTemplate;
     @Autowired
     private GenreService genreService;
+    @Autowired
+    private AuthorService authorService;
     private final Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
             "cloud_name", "dungtd",
             "api_key", "553685374214836",
@@ -45,11 +47,13 @@ public class SongService {
              songs) {
             songDto.clone(s);
             songDto.setGenre(genreService.getById(s.getGenre()).get());
+            songDto.setAuthor(authorService.getById(s.getAuthor()).get());
             songsDto.add(songDto);
         }
 
         return songsDto;
     }
+
     public List<Song> findAll() {
         Query query = new Query();
         query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
@@ -58,16 +62,17 @@ public class SongService {
         return mongoTemplate.find(query, Song.class, "song");
     }
 
-
     public SongDto findById(String id) {
         SongDto songDto = new SongDto();
         Optional<Song> song = repository.findById(id);
         if (song.isPresent()) {
             songDto.clone(song.get());
             Optional<Genre> genre = genreService.getById(song.get().getGenre());
+            Optional<Author> author = authorService.getById(song.get().getAuthor());
 
-            if (genre.isPresent()) {
+            if (genre.isPresent() && author.isPresent()) {
                 songDto.setGenre(genre.get());
+                songDto.setAuthor(author.get());
                 return songDto;
             } else {
                 return null;
@@ -98,9 +103,11 @@ public class SongService {
         List<SongDto> songsDto = new ArrayList<>();
         for (Song s:
                 songs) {
+
             SongDto songDto = new SongDto();
             songDto.clone(s);
             songDto.setGenre(genreService.getById(s.getGenre()).get());
+            songDto.setAuthor(authorService.getById(s.getAuthor()).get());
 
             songsDto.add(songDto);
         }
@@ -167,7 +174,9 @@ public class SongService {
         if (nextSongs.size() > 0) {
             songDtoNext.clone(nextSongs.get(0));
             Optional<Genre> genre = genreService.getById(nextSongs.get(0).getGenre());
+            Optional<Author> author = authorService.getById(nextSongs.get(0).getAuthor());
             songDtoNext.setGenre(genre.get());
+            songDtoNext.setAuthor(author.get());
             related.add(songDtoNext);
 
             logger.info("List updated next 1: " + songDtoNext);
@@ -177,6 +186,7 @@ public class SongService {
             Song s = mongoTemplate.find(queryNext, Song.class, "song").get(0);
             songDtoNext.clone(s);
             songDtoNext.setGenre(genreService.getById(s.getGenre()).get());
+            songDtoNext.setAuthor(authorService.getById(s.getAuthor()).get());
             related.add(songDtoNext);
 
             logger.info("List updated next 2: " + songDtoNext);
@@ -185,14 +195,20 @@ public class SongService {
 
         SongDto songDtoPrevious = new SongDto();
 
+
         Query queryPrevious = new Query();
         queryPrevious.addCriteria(Criteria.where("updateAt").lt(song.getUpdateAt()));
         queryPrevious.with(Sort.by(Sort.Direction.DESC, "updateAt"));
         List<Song> previousSongs = mongoTemplate.find(queryPrevious, Song.class, "song");
 
+        logger.info("Previous: " + previousSongs);
+
         if (previousSongs.size() > 0) {
             songDtoPrevious.clone(previousSongs.get(0));
             Optional<Genre> genre = genreService.getById(previousSongs.get(0).getGenre());
+            Optional<Author> author = authorService.getById(previousSongs.get(0).getAuthor());
+
+            songDtoPrevious.setAuthor(author.get());
             songDtoPrevious.setGenre(genre.get());
 
             related.add(songDtoPrevious);
@@ -204,6 +220,8 @@ public class SongService {
             Song s = mongoTemplate.find(queryPrevious, Song.class, "song").get(0);
             songDtoPrevious.clone(s);
             songDtoPrevious.setGenre(genreService.getById(s.getGenre()).get());
+            songDtoNext.setAuthor(authorService.getById(s.getAuthor()).get());
+
             related.add(songDtoPrevious);
 
             logger.info("List updated previous 2: " + songDtoPrevious);

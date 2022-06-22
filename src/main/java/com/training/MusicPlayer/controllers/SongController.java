@@ -3,6 +3,7 @@ package com.training.MusicPlayer.controllers;
 import com.training.MusicPlayer.dto.SongDto;
 import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.response.ResponseObject;
+import com.training.MusicPlayer.services.AuthorService;
 import com.training.MusicPlayer.services.GenreService;
 import com.training.MusicPlayer.services.SongService;
 import com.training.MusicPlayer.utils.SongSourceUpload;
@@ -27,6 +28,8 @@ public class SongController {
     private SongService service;
     @Autowired
     private GenreService genreService;
+    @Autowired
+    private AuthorService authorService;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(path = "/all")
@@ -175,6 +178,15 @@ public class SongController {
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Success", genreService.getAll())
+        );
+    }
+
+    @GetMapping(value = "/author/all")
+    ResponseEntity<ResponseObject> getAllAuthors() {
+        logger.info("Getting author list:...");
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Success", authorService.getAll())
         );
     }
 }
