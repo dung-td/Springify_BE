@@ -1,10 +1,9 @@
 package com.training.MusicPlayer.controllers;
 
 import com.training.MusicPlayer.dto.SongDto;
+import com.training.MusicPlayer.exception.SongNotFoundException;
 import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.response.ResponseObject;
-import com.training.MusicPlayer.services.AuthorService;
-import com.training.MusicPlayer.services.GenreService;
 import com.training.MusicPlayer.services.SongService;
 import com.training.MusicPlayer.utils.SongSourceUpload;
 import com.training.MusicPlayer.utils.SongThumbnailUpload;
@@ -29,11 +28,34 @@ public class SongController {
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(path = "/all")
-    ResponseEntity<ResponseObject> getAll() {
+    ResponseEntity<ResponseObject> getAll(@RequestParam(required = false, value = "shuffle") Boolean shuffle) {
         logger.info("Getting song list:...");
 
+        if (shuffle == null) {
+            shuffle = false;
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", service.findAllDto())
+                new ResponseObject("ok", "Success", service.findAllDto(shuffle))
+        );
+    }
+
+    @GetMapping(path = "/count")
+    ResponseEntity<ResponseObject> count(
+            @RequestParam(required = false, value = "name") String name,
+            @RequestParam(required = false, value = "author") String author,
+            @RequestParam(required = false, value = "genre") String genre) {
+        logger.info("Counting songs:...");
+
+        if (name == null)
+            name = "";
+        if (author == null)
+            author = "";
+        if (genre == null)
+            genre = "";
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Success", service.count(name, author, genre))
         );
     }
 
@@ -45,10 +67,9 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Success", song)
             );
+        } else {
+            throw new SongNotFoundException();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("not-found", "Cannot find song with id: " + id, null)
-        );
     }
 
     @GetMapping(path = "/page")
@@ -94,9 +115,7 @@ public class SongController {
                         new ResponseObject("ok", "Success", afterEdit)
                 );
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("not-found", "Cannot update song with id: " + s.getId(), null)
-                );
+                throw new SongNotFoundException();
             }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
@@ -112,16 +131,15 @@ public class SongController {
             for (String s : list) {
                 song.setId(s);
                 String status = "";
+
                 try {
                     status = service.delete(song);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
-                if (status.equals("error")) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                            new ResponseObject("not-found", "Cannot find song with id: " + song.getId(), null)
-                    );
+                if (status == null) {
+                    throw new SongNotFoundException();
                 }
             }
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -148,8 +166,6 @@ public class SongController {
 
         Song song = new Song(name, author, genre, new Date());
 
-        logger.info("Thumbail: " + thumbnail.getSize());
-
         try {
             Song afterUpload = service.uploadSongSource(song, songSourceUpload);
             if (songThumbnailUpload.getFile() != null) {
@@ -161,6 +177,7 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Success", afterUpload)
             );
+
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject("error", "Error while upload file", null)
@@ -170,6 +187,11 @@ public class SongController {
 
     @GetMapping(value = "/getRelated")
     ResponseEntity<ResponseObject> getAllSongs(@RequestParam("id") String id) {
+
+        List<SongDto> relatedList = service.getRelatedSong(id);
+        if (relatedList == null)
+            throw new SongNotFoundException();
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "success", service.getRelatedSong(id))
         );

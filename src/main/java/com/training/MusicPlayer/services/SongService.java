@@ -36,19 +36,24 @@ public class SongService {
             "api_key", "553685374214836",
             "api_secret", "QLOlTiPPPESG9iyQhzG634GfhBQ"));
     private static final Logger logger = LoggerFactory.getLogger(SongService.class);
-    public List<SongDto> findAllDto() {
+    public List<SongDto> findAllDto(Boolean shuffle) {
         Query query = new Query();
         query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
 
         List<Song> songs = mongoTemplate.find(query, Song.class, "song");
         List<SongDto> songsDto = new ArrayList<>();
-        SongDto songDto = new SongDto();
         for (Song s:
              songs) {
+            SongDto songDto = new SongDto();
             songDto.clone(s);
             songDto.setGenre(genreService.getById(s.getGenre()).get());
             songDto.setAuthor(authorService.getById(s.getAuthor()).get());
             songsDto.add(songDto);
+        }
+
+        if (shuffle) {
+            Collections.shuffle(songsDto);
+            return songsDto;
         }
 
         return songsDto;
@@ -60,6 +65,24 @@ public class SongService {
 
 
         return mongoTemplate.find(query, Song.class, "song");
+    }
+
+    public long count(String name, String author, String genre) {
+        logger.info("Counting page with name: " + name + " and author:" + author + " and genre: " + genre);
+
+        Query query = new Query();
+
+        if (!name.equals("")) {
+            query.addCriteria(Criteria.where("name").regex(name, "i"));
+        }
+        if (!author.equals("")) {
+            query.addCriteria(Criteria.where("author").regex(author, "i"));
+        }
+        if (!genre.equals("")) {
+            query.addCriteria(Criteria.where("genre").regex(genre, "i"));
+        }
+
+        return mongoTemplate.count(query, Song.class, "song");
     }
 
     public SongDto findById(String id) {
@@ -114,15 +137,14 @@ public class SongService {
 
             SongDto songDto = new SongDto();
             songDto.clone(s);
+
             songDto.setGenre(genreService.getById(s.getGenre()).get());
             songDto.setAuthor(authorService.getById(s.getAuthor()).get());
 
             songsDto.add(songDto);
         }
 
-        SongPage songPage = new SongPage(songsDto, pageable);
-
-        return songPage;
+        return new SongPage(songsDto, pageable);
     }
 
     public Song editSong(Song song) {
@@ -143,6 +165,10 @@ public class SongService {
     public String delete(Song song) throws IOException {
         logger.info("Deleting song: " + song.getName());
         Optional<Song> songToDelete = repository.findById(song.getId());
+
+        if (songToDelete.isEmpty())
+            return null;
+
 
         Map deleteResult = null;
 
