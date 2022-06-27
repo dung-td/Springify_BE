@@ -108,15 +108,27 @@ public class SongController {
     @PutMapping(value = "/update", consumes = "application/json", produces = "application/json")
     ResponseEntity<ResponseObject> updateSong(@RequestBody Song s) {
         if (s.getId() != null) {
+
             Song afterEdit = service.editSong(s);
 
             if (afterEdit != null) {
+
+                if (!service.checkSong(afterEdit)) {
+                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                            new ResponseObject("NOT_ACCEPTABLE", "Author already has this song name", null)
+                    );
+                }
+
+                service.save(afterEdit);
+
                 return ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("ok", "Success", afterEdit)
                 );
             } else {
                 throw new SongNotFoundException();
             }
+
+
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
                     new ResponseObject("error", "Missing required ID", null)
@@ -166,6 +178,12 @@ public class SongController {
 
         Song song = new Song(name, author, genre, new Date());
 
+        if (!service.checkSong(song)) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                    new ResponseObject("NOT_ACCEPTABLE", "Author already has this song name", null)
+            );
+        }
+
         try {
             Song afterUpload = service.uploadSongSource(song, songSourceUpload);
             if (songThumbnailUpload.getFile() != null) {
@@ -196,8 +214,4 @@ public class SongController {
                 new ResponseObject("ok", "success", service.getRelatedSong(id))
         );
     }
-
-
-
-
 }

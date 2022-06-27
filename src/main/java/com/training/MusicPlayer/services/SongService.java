@@ -105,6 +105,26 @@ public class SongService {
         }
     }
 
+    public Boolean checkSong(Song song) {
+        logger.info("Checking song: " + song);
+        Query query = new Query();
+
+
+        query.addCriteria(Criteria.where("name").regex(song.getName(), "i"));
+        query.addCriteria(Criteria.where("author").regex(song.getAuthor(), "i"));
+
+        List<Song> songs = mongoTemplate.find(query, Song.class, "song");
+
+        for (Song s: songs
+             ) {
+            logger.info("Comparing with song: " + s);
+            if (s.equals(song)) {
+                return s.getId().equals(song.getId());
+            }
+        }
+        return true;
+    }
+
     public String save(Song song) {
         repository.save(song);
         return song.getName();
@@ -154,12 +174,10 @@ public class SongService {
         if (songToUpdate.isPresent()) {
             songToUpdate.get().updateData(song);
             songToUpdate.get().setUpdateAt(new Date());
-            repository.save(songToUpdate.get());
             return songToUpdate.get();
         } else {
             return null;
         }
-
     }
 
     public String delete(Song song) throws IOException {

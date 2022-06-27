@@ -4,7 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.StoredFile;
 import org.springframework.web.multipart.MultipartFile;
 
-public class SongThumbnailUpload extends StoredFile  {
+public class SongThumbnailUpload extends StoredFile {
     private String title;
     private MultipartFile file;
     public String getUrl(Cloudinary instance) {

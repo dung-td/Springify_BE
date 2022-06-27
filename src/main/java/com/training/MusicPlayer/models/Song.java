@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.cloudinary.StoredFile;
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.Locale;
 
 @Document
 public class Song {
@@ -57,6 +58,27 @@ public class Song {
             this.src = s.getSrc();
         if (s.getGenre() != null)
             this.genre = s.getGenre();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode() + this.getName().hashCode() + this.getAuthor().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        Song songObj = (Song) obj;
+
+        if (this.getId().equals(songObj.getId()))
+            return true;
+
+        return this.getAuthor().toLowerCase().equals(songObj.getAuthor().toLowerCase())
+                && this.getName().toLowerCase().equals(songObj.getName().toLowerCase());
     }
 
     @Override
@@ -148,7 +170,6 @@ public class Song {
         file.setPreloadedFile(src);
         return file;
     }
-
     public void setUpload(StoredFile file) {
         this.src = file.getPreloadedFile();
     }
