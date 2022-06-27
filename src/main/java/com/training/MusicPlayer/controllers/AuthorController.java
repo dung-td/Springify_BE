@@ -40,6 +40,13 @@ public class AuthorController {
 
     @PostMapping(value = "/add")
     ResponseEntity<ResponseObject> add(@RequestBody Author a) {
+
+        if (!authorService.checkAuthor(a)) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                    new ResponseObject("NOT_ACCEPTABLE", "Author name existed", null)
+            );
+        }
+
         Author author = authorService.save(a);
 
         if (author != null) {

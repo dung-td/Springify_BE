@@ -41,13 +41,17 @@ public class GenreService {
 
         return repository.findAll();
     }
-    public Genre save(Genre genre) {
-        if (findByName(genre.getName()).size() > 0) {
-            return null;
-        } else {
-            repository.save(genre);
-            return genre;
+    public Boolean checkGenre(Genre genre) {
+        List<Genre> genres = findByName(genre.getName());
+        for (Genre g : genres) {
+            if (g.equals(genre))
+                return false;
         }
+        return true;
+    }
+    public Genre save(Genre genre) {
+        repository.save(genre);
+        return genre;
     }
     public String delete(String id) {
         if (getById(id).isPresent()) {

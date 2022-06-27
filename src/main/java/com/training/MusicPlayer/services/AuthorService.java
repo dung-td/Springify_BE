@@ -32,18 +32,22 @@ public class AuthorService {
     }
     public List<Author> findByName(String name) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("name").regex( "/^" + name + "$/",""));
-
+        query.addCriteria(Criteria.where("name").regex(name,"i"));
 
         return mongoTemplate.find(query, Author.class, "author");
     }
-    public Author save(Author author) {
-        if (findByName(author.getName()).size() > 0) {
-            return null;
-        } else {
-            repository.save(author);
-            return author;
+
+    public Boolean checkAuthor(Author author) {
+        List<Author> authors = findByName(author.getName());
+        for (Author a : authors) {
+            if (a.equals(author))
+                return false;
         }
+        return true;
+    }
+    public Author save(Author author) {
+        repository.save(author);
+        return author;
     }
     public String delete(String id) {
         if (getById(id).isPresent()) {

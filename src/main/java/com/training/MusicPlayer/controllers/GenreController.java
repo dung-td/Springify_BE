@@ -38,6 +38,12 @@ public class GenreController {
 
     @PostMapping(value = "/add")
     ResponseEntity<ResponseObject> add(@RequestBody Genre g) {
+        if (!genreService.checkGenre(g)) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                    new ResponseObject("NOT_ACCEPTABLE", "Genre name existed", null)
+            );
+        }
+
         Genre genre = genreService.save(g);
 
         if (genre != null) {

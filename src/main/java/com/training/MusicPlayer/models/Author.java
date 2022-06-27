@@ -11,6 +11,27 @@ public class Author {
     public Author(String name) {
         this.name = name;
     }
+
+    @Override
+    public int hashCode() {
+        return this.getName().hashCode() + 32;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        Author authorObj = (Author) obj;
+
+        if (this.getId().equals(authorObj.getId()))
+            return true;
+
+        return this.getName().toLowerCase().equals(authorObj.getName().toLowerCase());
+    }
+
     public String getId() {
         return id;
     }
