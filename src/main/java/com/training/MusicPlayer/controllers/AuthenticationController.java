@@ -31,7 +31,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> authenticateUser(@RequestBody User user) {
 
-        logger.info("Loging in:..." + user.getUsername() + "/" + user.getPassword());
+        logger.info("Logging in:..." + user.getUsername() + "/" + user.getPassword());
 
         try {
             Authentication authentication = authenticationManager.authenticate(

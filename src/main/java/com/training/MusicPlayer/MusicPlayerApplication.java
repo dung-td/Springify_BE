@@ -5,16 +5,10 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.internal.MongoClientImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
-import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
-import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import com.cloudinary.*;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -44,7 +38,7 @@ public class MusicPlayerApplication {
     }
 
     @Bean
-    public MongoClient mongo() {
+    public MongoClient mongodb() {
         ConnectionString connectionString = new ConnectionString("mongodb+srv://dungtd:Dung0478@cluster0.e8zbvyf.mongodb.net/?retryWrites=true&w=majority");
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
@@ -54,7 +48,7 @@ public class MusicPlayerApplication {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
-        return new MongoTemplate(mongo(), "springify");
+    public MongoTemplate mongoTemplate() {
+        return new MongoTemplate(mongodb(), "springify");
     }
 }

@@ -46,8 +46,12 @@ public class SongService {
              songs) {
             SongDto songDto = new SongDto();
             songDto.clone(s);
-            songDto.setGenre(genreService.getById(s.getGenre()).get());
-            songDto.setAuthor(authorService.getById(s.getAuthor()).get());
+
+            Optional<Genre> genre = genreService.getById(s.getGenre());
+            Optional<Author> author = authorService.getById(s.getAuthor());
+
+            genre.ifPresent(songDto::setGenre);
+            author.ifPresent(songDto::setAuthor);
             songsDto.add(songDto);
         }
 
@@ -90,16 +94,14 @@ public class SongService {
         Optional<Song> song = repository.findById(id);
         if (song.isPresent()) {
             songDto.clone(song.get());
+
             Optional<Genre> genre = genreService.getById(song.get().getGenre());
             Optional<Author> author = authorService.getById(song.get().getAuthor());
 
-            if (genre.isPresent() && author.isPresent()) {
-                songDto.setGenre(genre.get());
-                songDto.setAuthor(author.get());
-                return songDto;
-            } else {
-                return null;
-            }
+            genre.ifPresent(songDto::setGenre);
+            author.ifPresent(songDto::setAuthor);
+
+            return songDto;
         } else {
             return null;
         }
@@ -158,8 +160,11 @@ public class SongService {
             SongDto songDto = new SongDto();
             songDto.clone(s);
 
-            songDto.setGenre(genreService.getById(s.getGenre()).get());
-            songDto.setAuthor(authorService.getById(s.getAuthor()).get());
+            Optional<Genre> g = genreService.getById(s.getGenre());
+            Optional<Author> a = authorService.getById(s.getAuthor());
+
+            g.ifPresent(songDto::setGenre);
+            a.ifPresent(songDto::setAuthor);
 
             songsDto.add(songDto);
         }
@@ -188,7 +193,7 @@ public class SongService {
             return null;
 
 
-        Map deleteResult = null;
+        Map deleteResult;
 
         if (songToDelete.get().getSrcId() != null) {
             deleteResult = cloudinary.uploader().destroy(songToDelete.get().getSrcId(),  ObjectUtils.asMap("resource_type", "video"));
@@ -227,8 +232,9 @@ public class SongService {
             songDtoNext.clone(nextSongs.get(0));
             Optional<Genre> genre = genreService.getById(nextSongs.get(0).getGenre());
             Optional<Author> author = authorService.getById(nextSongs.get(0).getAuthor());
-            songDtoNext.setGenre(genre.get());
-            songDtoNext.setAuthor(author.get());
+
+            genre.ifPresent(songDtoNext::setGenre);
+            author.ifPresent(songDtoNext::setAuthor);
             related.add(songDtoNext);
 
             logger.info("List updated next 1: " + songDtoNext);
@@ -237,8 +243,12 @@ public class SongService {
             queryNext.with(Sort.by(Sort.Direction.ASC, "updateAt"));
             Song s = mongoTemplate.find(queryNext, Song.class, "song").get(0);
             songDtoNext.clone(s);
-            songDtoNext.setGenre(genreService.getById(s.getGenre()).get());
-            songDtoNext.setAuthor(authorService.getById(s.getAuthor()).get());
+
+            Optional<Genre> genre = genreService.getById(s.getGenre());
+            Optional<Author> author = authorService.getById(s.getAuthor());
+            genre.ifPresent(songDtoNext::setGenre);
+            author.ifPresent(songDtoNext::setAuthor);
+
             related.add(songDtoNext);
 
             logger.info("List updated next 2: " + songDtoNext);
@@ -260,8 +270,8 @@ public class SongService {
             Optional<Genre> genre = genreService.getById(previousSongs.get(0).getGenre());
             Optional<Author> author = authorService.getById(previousSongs.get(0).getAuthor());
 
-            songDtoPrevious.setAuthor(author.get());
-            songDtoPrevious.setGenre(genre.get());
+            genre.ifPresent(songDtoNext::setGenre);
+            author.ifPresent(songDtoNext::setAuthor);
 
             related.add(songDtoPrevious);
             logger.info("List updated previous 1: " + songDtoPrevious);
@@ -271,20 +281,23 @@ public class SongService {
             queryPrevious.with(Sort.by(Sort.Direction.DESC, "updateAt"));
             Song s = mongoTemplate.find(queryPrevious, Song.class, "song").get(0);
             songDtoPrevious.clone(s);
-            songDtoPrevious.setGenre(genreService.getById(s.getGenre()).get());
-            songDtoNext.setAuthor(authorService.getById(s.getAuthor()).get());
+
+            Optional<Genre> genre = genreService.getById(s.getGenre());
+            Optional<Author> author = authorService.getById(s.getAuthor());
+            genre.ifPresent(songDtoNext::setGenre);
+            author.ifPresent(songDtoNext::setAuthor);
 
             related.add(songDtoPrevious);
 
             logger.info("List updated previous 2: " + songDtoPrevious);
         }
 
-        logger.info("Result:" + related.toString());
+        logger.info("Result:" + related);
         return related;
     }
 
     public Song uploadSongSource(Song song, @ModelAttribute SongSourceUpload songUpload) throws IOException {
-        Map uploadResult = null;
+        Map uploadResult;
 
         if (songUpload.getFile() != null && !songUpload.getFile().isEmpty()) {
             uploadResult = cloudinary.uploader().upload(songUpload.getFile().getBytes(),
@@ -313,7 +326,7 @@ public class SongService {
     }
 
     public Song uploadSongThumbnail(Song song, @ModelAttribute SongThumbnailUpload songThumbnailUpload) throws IOException {
-        Map uploadResult = null;
+        Map uploadResult;
 
         if (songThumbnailUpload.getFile() != null && !songThumbnailUpload.getFile().isEmpty()) {
             uploadResult = cloudinary.uploader().upload(songThumbnailUpload.getFile().getBytes(),
@@ -339,13 +352,5 @@ public class SongService {
         song.setThumbnailId(songThumbnailUpload.getPublicId());
 
         return song;
-    }
-
-}
-
-class SortSongByName implements Comparator<Song> {
-    @Override
-    public int compare(Song o1, Song o2) {
-        return o1.getName().compareTo(o2.getName());
     }
 }

@@ -29,7 +29,7 @@ public class SongController {
 
     @GetMapping(path = "/all")
     ResponseEntity<ResponseObject> getAll(@RequestParam(required = false, value = "shuffle") Boolean shuffle) {
-        logger.info("Getting song list:...");
+        logger.info("Getting song list:... with shuffle = " + shuffle);
 
         if (shuffle == null) {
             shuffle = false;
@@ -142,7 +142,7 @@ public class SongController {
             Song song = new Song();
             for (String s : list) {
                 song.setId(s);
-                String status = "";
+                String status;
 
                 try {
                     status = service.delete(song);
@@ -204,7 +204,7 @@ public class SongController {
     }
 
     @GetMapping(value = "/getRelated")
-    ResponseEntity<ResponseObject> getAllSongs(@RequestParam("id") String id) {
+    ResponseEntity<ResponseObject> getRelated(@RequestParam("id") String id) {
 
         List<SongDto> relatedList = service.getRelatedSong(id);
         if (relatedList == null)

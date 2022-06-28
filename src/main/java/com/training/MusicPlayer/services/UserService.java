@@ -21,8 +21,6 @@ public class UserService implements UserDetailsService {
     UserRepository repository;
     @Autowired
     MongoTemplate mongoTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -14,9 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-
-import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -40,12 +37,12 @@ public class AuthorController {
 
     @PostMapping(value = "/add")
     ResponseEntity<ResponseObject> add(@RequestBody Author a) {
-
         if (!authorService.checkAuthor(a)) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
                     new ResponseObject("NOT_ACCEPTABLE", "Author name existed", null)
             );
         }
+
 
         Author author = authorService.save(a);
 
@@ -77,7 +74,7 @@ public class AuthorController {
                     );
                 }
 
-                String status = "";
+                String status;
                 status = authorService.delete(s);
                 if (status.equals("NOT_FOUND")) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

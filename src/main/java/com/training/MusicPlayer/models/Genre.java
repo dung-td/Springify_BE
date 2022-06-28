@@ -31,7 +31,7 @@ public class Genre {
         if (this.getId().equals(genreObj.getId()))
             return true;
 
-        return this.getName().toLowerCase().equals(genreObj.getName().toLowerCase());
+        return this.getName().equalsIgnoreCase(genreObj.getName());
     }
 
     public String getId() {

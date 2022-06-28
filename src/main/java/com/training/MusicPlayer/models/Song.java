@@ -77,8 +77,8 @@ public class Song {
         if (this.getId().equals(songObj.getId()))
             return true;
 
-        return this.getAuthor().toLowerCase().equals(songObj.getAuthor().toLowerCase())
-                && this.getName().toLowerCase().equals(songObj.getName().toLowerCase());
+        return this.getAuthor().equalsIgnoreCase(songObj.getAuthor())
+                && this.getName().equalsIgnoreCase(songObj.getName());
     }
 
     @Override
@@ -170,6 +170,7 @@ public class Song {
         file.setPreloadedFile(src);
         return file;
     }
+
     public void setUpload(StoredFile file) {
         this.src = file.getPreloadedFile();
     }

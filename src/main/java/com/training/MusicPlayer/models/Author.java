@@ -8,6 +8,7 @@ public class Author {
     private String name;
     public Author() {
     }
+
     public Author(String name) {
         this.name = name;
     }
@@ -29,7 +30,7 @@ public class Author {
         if (this.getId().equals(authorObj.getId()))
             return true;
 
-        return this.getName().toLowerCase().equals(authorObj.getName().toLowerCase());
+        return this.getName().equalsIgnoreCase(authorObj.getName());
     }
 
     public String getId() {

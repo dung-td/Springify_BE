@@ -16,7 +16,6 @@ import java.util.Optional;
 
 @Service
 public class AuthorService {
-    private static final Logger logger = LoggerFactory.getLogger(GenreService.class);
     @Autowired
     private AuthorRepository repository;
     @Autowired

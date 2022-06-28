@@ -4,7 +4,6 @@ import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.Genre;
 import com.training.MusicPlayer.models.Song;
 
-import javax.persistence.Id;
 import java.util.Date;
 
 public class SongDto {

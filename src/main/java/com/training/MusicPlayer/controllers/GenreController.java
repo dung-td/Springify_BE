@@ -1,8 +1,6 @@
 package com.training.MusicPlayer.controllers;
 
-import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.Genre;
-import com.training.MusicPlayer.models.Song;
 import com.training.MusicPlayer.models.SongPage;
 import com.training.MusicPlayer.response.ResponseObject;
 import com.training.MusicPlayer.services.GenreService;
@@ -16,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/api/genre")
@@ -61,19 +59,17 @@ public class GenreController {
     @DeleteMapping(value = "/delete")
     ResponseEntity<ResponseObject> delete(@RequestParam(name = "id") List<String> list) {
         if (list.size() > 0) {
-            Author author = new Author();
             for (String s : list) {
-
                 Pageable pageable = PageRequest.of(0 , 1);
                 SongPage page = songService.getPage("", "", s, 0, 1, pageable);
 
                 if (page.getSongs().size() > 0) {
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
-                            new ResponseObject("NOT_ACCEPTABLE", "This Genre is match with other songs, delete those songs first\"", null)
+                            new ResponseObject("NOT_ACCEPTABLE", "This Genre is match with other songs, delete those songs first", null)
                     );
                 }
 
-                String status = "";
+                String status;
                 status = genreService.delete(s);
                 if (status.equals("NOT_FOUND")) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
