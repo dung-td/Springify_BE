@@ -1,5 +1,6 @@
 package com.training.MusicPlayer.dto;
 
+import com.training.MusicPlayer.entity.SongSQL;
 import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.Genre;
 import com.training.MusicPlayer.models.Song;
@@ -14,6 +15,7 @@ public class SongDto {
     private String src;
     private String thumbnail;
     private Date updateAt;
+    private Long streams;
 
     public SongDto() {
     }
@@ -24,9 +26,19 @@ public class SongDto {
         this.src = song.getSrc();
         this.thumbnail = song.getThumbnail();
         this.updateAt = song.getUpdateAt();
+        this.streams = song.getStreams();
     }
 
-    public SongDto(String id, String name, Author author, Genre genre, String src, String thumbnail, Date updateAt) {
+    public void cloneSQL(SongSQL song) {
+        this.id = song.getId();
+        this.name = song.getName();
+        this.src = song.getSrc();
+        this.thumbnail = song.getThumbnail();
+        this.updateAt = song.getDate();
+        this.streams = Long.valueOf(song.getStream());
+    }
+
+    public SongDto(String id, String name, Author author, Genre genre, String src, String thumbnail, Date updateAt, Long streams) {
         this.id = id;
         this.name = name;
         this.author = author;
@@ -34,6 +46,7 @@ public class SongDto {
         this.src = src;
         this.thumbnail = thumbnail;
         this.updateAt = updateAt;
+        this.streams = streams;
     }
 
     public String getId() {
@@ -90,5 +103,13 @@ public class SongDto {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Long getStreams() {
+        return streams;
+    }
+
+    public void setStreams(Long streams) {
+        this.streams = streams;
     }
 }

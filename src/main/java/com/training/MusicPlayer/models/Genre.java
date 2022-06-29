@@ -1,5 +1,6 @@
 package com.training.MusicPlayer.models;
 
+import com.training.MusicPlayer.entity.GenreSQL;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -12,6 +13,11 @@ public class Genre {
 
     public Genre(String name) {
         this.name = name;
+    }
+
+    public void clone(GenreSQL genreSQL) {
+        this.id = genreSQL.getId();
+        this.name = genreSQL.getName();
     }
 
     @Override

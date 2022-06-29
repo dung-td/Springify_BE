@@ -3,8 +3,8 @@ package com.training.MusicPlayer.controllers;
 import com.training.MusicPlayer.models.Genre;
 import com.training.MusicPlayer.models.SongPage;
 import com.training.MusicPlayer.response.ResponseObject;
-import com.training.MusicPlayer.services.GenreService;
-import com.training.MusicPlayer.services.SongService;
+import com.training.MusicPlayer.services.serviceimpl.GenreServiceMongoDBImpl;
+import com.training.MusicPlayer.services.serviceimpl.SongServiceMongoDBImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ import java.util.*;
 @RequestMapping(value = "/api/genre")
 public class GenreController {
     @Autowired
-    private GenreService genreService;
+    private GenreServiceMongoDBImpl genreService;
     @Autowired
-    private SongService songService;
+    private SongServiceMongoDBImpl songService;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(value = "/all")

@@ -3,8 +3,8 @@ package com.training.MusicPlayer.controllers;
 import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.SongPage;
 import com.training.MusicPlayer.response.ResponseObject;
-import com.training.MusicPlayer.services.AuthorService;
-import com.training.MusicPlayer.services.SongService;
+import com.training.MusicPlayer.services.serviceimpl.AuthorServiceMongoDBImpl;
+import com.training.MusicPlayer.services.serviceimpl.SongServiceMongoDBImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ import java.util.*;
 @RequestMapping(path = "/api/author")
 public class AuthorController {
     @Autowired
-    private AuthorService authorService;
+    private AuthorServiceMongoDBImpl authorService;
     @Autowired
-    private SongService songService;
+    private SongServiceMongoDBImpl songService;
     private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
 
@@ -42,7 +42,6 @@ public class AuthorController {
                     new ResponseObject("NOT_ACCEPTABLE", "Author name existed", null)
             );
         }
-
 
         Author author = authorService.save(a);
 

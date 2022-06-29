@@ -4,7 +4,8 @@ import com.training.MusicPlayer.dto.SongDto;
 import com.training.MusicPlayer.exception.SongNotFoundException;
 import com.training.MusicPlayer.models.*;
 import com.training.MusicPlayer.response.ResponseObject;
-import com.training.MusicPlayer.services.SongService;
+import com.training.MusicPlayer.services.serviceimpl.SongServiceMongoDBImpl;
+import com.training.MusicPlayer.services.serviceimpl.SongServiceSQLImpl;
 import com.training.MusicPlayer.utils.SongSourceUpload;
 import com.training.MusicPlayer.utils.SongThumbnailUpload;
 import org.slf4j.Logger;
@@ -24,7 +25,9 @@ import java.util.*;
 @RequestMapping(path = "/api/music")
 public class SongController {
     @Autowired
-    private SongService service;
+    private SongServiceMongoDBImpl service;
+    @Autowired
+    private SongServiceSQLImpl songServiceSQL;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
 
     @GetMapping(path = "/all")
@@ -176,7 +179,7 @@ public class SongController {
         songThumbnailUpload.setFile(thumbnail);
         songThumbnailUpload.setTitle(name);
 
-        Song song = new Song(name, author, genre, new Date());
+        Song song = new Song(name, author, genre, new Date(), 0L);
 
         if (!service.checkSong(song)) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
@@ -213,5 +216,37 @@ public class SongController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "success", service.getRelatedSong(id))
         );
+    }
+
+    @PutMapping(value = "/stream")
+    ResponseEntity<ResponseObject> updateStream(@RequestBody SongDto song) {
+        song = service.findById(song.getId());
+
+        if (song == null) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                    new ResponseObject("NOT_ACCEPTABLE", "Song not found!", null)
+            );
+        }
+
+        SongDto afterUpdate = service.updateStream(song);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Success", afterUpdate)
+        );
+    }
+
+
+//    MYSQL FUNCTION
+    @GetMapping(path = "/sql/all")
+    ResponseEntity<ResponseObject> getByIdSQL() {
+        List<SongDto> songs = songServiceSQL.findAllDto(false);
+
+        if (songs != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Success", songs)
+            );
+        } else {
+            throw new SongNotFoundException();
+        }
     }
 }

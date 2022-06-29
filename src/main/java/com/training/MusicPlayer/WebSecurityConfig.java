@@ -70,6 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             "/api/music/all",
                             "/api/music/get",
                             "/api/music/count",
+                            "/api/music/stream",
                             "/api/music/page",
                             "/api/music/getRelated",
                             "/api/genre/all",

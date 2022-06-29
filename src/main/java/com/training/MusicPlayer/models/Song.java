@@ -20,6 +20,7 @@ public class Song {
     private String thumbnail;
     private String thumbnailId;
     private Date updateAt;
+    private Long streams;
 
     public Song() {
     }
@@ -32,21 +33,24 @@ public class Song {
         this.src = songDto.getSrc();
         this.thumbnail = songDto.getThumbnail();
         this.updateAt = songDto.getUpdateAt();
+        this.streams = songDto.getStreams();
     }
 
-    public Song(String name, String author, String genre, Date updateAt) {
+    public Song(String name, String author, String genre, Date updateAt, Long streams) {
         this.name = name;
         this.author = author;
         this.genre = genre;
         this.updateAt = updateAt;
+        this.streams = streams;
     }
 
-    public Song(String name, String author, String genre, String src, Date updateAt) {
+    public Song(String name, String author, String genre, String src, Date updateAt, Long streams) {
         this.name = name;
         this.author = author;
         this.genre = genre;
         this.src = src;
         this.updateAt = updateAt;
+        this.streams = streams;
     }
 
     public void updateData(Song s) {
@@ -58,11 +62,14 @@ public class Song {
             this.src = s.getSrc();
         if (s.getGenre() != null)
             this.genre = s.getGenre();
+        if (s.getStreams() != null) {
+            this.streams = s.getStreams();
+        }
     }
 
     @Override
     public int hashCode() {
-        return this.getId().hashCode() + this.getName().hashCode() + this.getAuthor().hashCode();
+        return this.getName().hashCode() + this.getAuthor().hashCode();
     }
 
     @Override
@@ -89,7 +96,11 @@ public class Song {
                 ", author='" + author + '\'' +
                 ", genre='" + genre + '\'' +
                 ", src='" + src + '\'' +
+                ", srcId='" + srcId + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", thumbnailId='" + thumbnailId + '\'' +
                 ", updateAt=" + updateAt +
+                ", streams=" + streams +
                 '}';
     }
 
@@ -163,6 +174,14 @@ public class Song {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Long getStreams() {
+        return streams;
+    }
+
+    public void setStreams(Long streams) {
+        this.streams = streams;
     }
 
     public StoredFile getUpload() {
