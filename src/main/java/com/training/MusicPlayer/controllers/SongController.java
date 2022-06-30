@@ -249,4 +249,69 @@ public class SongController {
             throw new SongNotFoundException();
         }
     }
+
+    @GetMapping(path = "/sql/get")
+    ResponseEntity<ResponseObject> getByIdSQL(@RequestParam("id") String id) {
+        SongDto song = songServiceSQL.findById(id);
+
+        if (song != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Success", song)
+            );
+        } else {
+            throw new SongNotFoundException();
+        }
+    }
+
+    @GetMapping(path = "/sql/page")
+    ResponseEntity<ResponseObject> getSongPageSQL(
+            @RequestParam(required = false, value = "name") String name,
+            @RequestParam(required = false, value = "author") String author,
+            @RequestParam(required = false, value = "genre") String genre,
+            @RequestParam("page") Integer index,
+            @RequestParam("limit") Integer limit) {
+
+        if (index == null)
+            index = 0;
+        if (limit == null)
+            limit = 4;
+        if (name == null)
+            name = "";
+        if (author == null)
+            author = "";
+        if (genre == null)
+            genre = "";
+
+        Pageable pageable = PageRequest.of(index , limit);
+
+        SongPage page = songServiceSQL.getPage(name, author, genre, index, limit, pageable);
+
+        if (page != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Success", page)
+            );
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObject("not-found", "Cannot find song with page: " + index, null)
+        );
+    }
+
+    @GetMapping(path = "/sql/count")
+    ResponseEntity<ResponseObject> countSQL(
+            @RequestParam(required = false, value = "name") String name,
+            @RequestParam(required = false, value = "author") String author,
+            @RequestParam(required = false, value = "genre") String genre) {
+        logger.info("Counting songs:...");
+
+        if (name == null)
+            name = "";
+        if (author == null)
+            author = "";
+        if (genre == null)
+            genre = "";
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Success", songServiceSQL.count(name, author, genre))
+        );
+    }
 }

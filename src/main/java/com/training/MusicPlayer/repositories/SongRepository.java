@@ -1,6 +1,7 @@
 package com.training.MusicPlayer.repositories;
 
 import com.training.MusicPlayer.models.Song;
+import com.training.MusicPlayer.models.SongPage;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -10,4 +11,5 @@ import java.util.List;
 
 @Repository
 public interface SongRepository extends MongoRepository<Song, String> {
+
 }

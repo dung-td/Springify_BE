@@ -4,6 +4,7 @@ import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.SongPage;
 import com.training.MusicPlayer.response.ResponseObject;
 import com.training.MusicPlayer.services.serviceimpl.AuthorServiceMongoDBImpl;
+import com.training.MusicPlayer.services.serviceimpl.AuthorServiceSQLImpl;
 import com.training.MusicPlayer.services.serviceimpl.SongServiceMongoDBImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,14 @@ public class AuthorController {
     @Autowired
     private AuthorServiceMongoDBImpl authorService;
     @Autowired
+    private AuthorServiceSQLImpl authorServiceSQL;
+    @Autowired
     private SongServiceMongoDBImpl songService;
     private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
 
     @GetMapping(value = "/all")
-    ResponseEntity<ResponseObject> getAllAuthors() {
+    ResponseEntity<ResponseObject> getAll() {
         logger.info("Getting author list:...");
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -90,4 +93,37 @@ public class AuthorController {
             );
         }
     }
+
+
+//    SQL FUNCTION
+    @GetMapping(value = "/sql/all")
+    ResponseEntity<ResponseObject> getAllBySQL() {
+        logger.info("Getting author list:...");
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Success", authorServiceSQL.getAll())
+        );
+    }
+
+//    @PostMapping(value = "/add")
+//    ResponseEntity<ResponseObject> addBySQL(@RequestBody Author a) {
+//        if (!authorServiceSQL.checkAuthor(a)) {
+//            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+//                    new ResponseObject("NOT_ACCEPTABLE", "Author name existed", null)
+//            );
+//        }
+//
+//        Author author = authorServiceSQL.save(a);
+//
+//        if (author != null) {
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject("OK", "Success", author)
+//            );
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+//                    new ResponseObject("NOT_ACCEPTABLE", "Author with name '" + a.getName() + "' already exist!", null)
+//            );
+//        }
+//
+//    }
 }

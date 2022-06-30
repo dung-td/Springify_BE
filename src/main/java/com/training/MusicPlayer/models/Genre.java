@@ -16,7 +16,7 @@ public class Genre {
     }
 
     public void clone(GenreSQL genreSQL) {
-        this.id = genreSQL.getId();
+        this.id = genreSQL.getGenre_id();
         this.name = genreSQL.getName();
     }
 

@@ -8,6 +8,8 @@ import com.training.MusicPlayer.repositories.sql.SongSQLRepository;
 import com.training.MusicPlayer.services.SongService;
 import com.training.MusicPlayer.utils.SongSourceUpload;
 import com.training.MusicPlayer.utils.SongThumbnailUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,23 +27,23 @@ public class SongServiceSQLImpl implements SongService {
     @Autowired
     private SongSQLRepository repository;
 
+    private static final Logger logger = LoggerFactory.getLogger(SongServiceSQLImpl.class);
+
+
     @Override
     public List<SongDto> findAllDto(Boolean shuffle) {
         Query query = new Query();
         query.with(Sort.by(Sort.Direction.ASC, "updateAt"));
 
         List<SongSQL> songs = repository.findAll();
+
+        logger.info("Got songSQL list: " + songs.size());
+
         List<SongDto> songsDto = new ArrayList<>();
         for (SongSQL s:
                 songs) {
             SongDto songDto = new SongDto();
             songDto.cloneSQL(s);
-
-//            Optional<Genre> genre = genreService.getById(s.getGenre());
-//            Optional<Author> author = authorService.getById(s.getAuthor());
-//
-//            genre.ifPresent(songDto::setGenre);
-//            author.ifPresent(songDto::setAuthor);
             songsDto.add(songDto);
         }
 
@@ -60,7 +62,7 @@ public class SongServiceSQLImpl implements SongService {
 
     @Override
     public long count(String name, String author, String genre) {
-        return 0;
+        return repository.countByNameContainingAndAuthorContainingAndGenreContaining(name, author, genre);
     }
 
     @Override
@@ -88,9 +90,7 @@ public class SongServiceSQLImpl implements SongService {
     }
 
     @Override
-    public String save(Song song) {
-        return null;
-    }
+    public String save(Song song) { return null; }
 
     public String saveSQL(SongSQL song) {
         repository.save(song);
@@ -99,7 +99,20 @@ public class SongServiceSQLImpl implements SongService {
 
     @Override
     public SongPage getPage(String name, String author, String genre, int index, Integer limit, Pageable pageable) {
-        return null;
+        logger.info("Getting page: " + index + " and limit: " + limit + " and name: " + name + " and author:" + author + " and genre: " + genre);
+
+        List<SongSQL> songs = repository.findAllByNameContainingAndAuthorContainingAndGenreContaining(name, author, genre);
+
+        List<SongDto> songsDto = new ArrayList<>();
+
+        for (SongSQL song:
+             songs) {
+            SongDto songDto = new SongDto();
+            songDto.cloneSQL(song);
+            songsDto.add(songDto);
+        }
+
+        return new SongPage(songsDto, pageable);
     }
 
     @Override

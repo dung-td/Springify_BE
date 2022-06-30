@@ -17,7 +17,11 @@ public class AuthorServiceSQLImpl implements AuthorService {
     private AuthorSQLRepository repository;
     @Override
     public Optional<Author> getById(String id) {
-        return Optional.empty();
+        AuthorSQL authorSQL = new AuthorSQL();
+
+        Author author = new Author();
+        author.clone(authorSQL);
+        return Optional.of(author);
     }
 
     @Override
@@ -27,9 +31,10 @@ public class AuthorServiceSQLImpl implements AuthorService {
         for (AuthorSQL authorSQL:
                 authorsSQL) {
             Author author = new Author();
-//            author.clone(author);
+            author.clone(authorSQL);
+            authors.add(author);
         }
-        return null;
+        return authors;
     }
 
     @Override

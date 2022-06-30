@@ -3,34 +3,37 @@ package com.training.MusicPlayer.entity;
 
 import com.training.MusicPlayer.models.Genre;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "genre")
 public class GenreSQL {
     @Id
-    private String id;
+    @Column(name = "genre_id", nullable = false)
+    private String genre_id;
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "genre", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<SongSQL> songsSQL = new HashSet<>();
 
     public GenreSQL() {
     }
 
     public void clone(Genre genre) {
-        this.id = genre.getId();
+        this.genre_id = genre.getId();
         this.name = genre.getName();
     }
 
-    public String getId() {
-        return id;
+    public String getGenre_id() {
+        return genre_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setGenre_id(String genre_id) {
+        this.genre_id = genre_id;
     }
 
     public String getName() {
@@ -39,5 +42,13 @@ public class GenreSQL {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<SongSQL> getSongsSQL() {
+        return songsSQL;
+    }
+
+    public void setSongsSQL(Set<SongSQL> songsSQL) {
+        this.songsSQL = songsSQL;
     }
 }

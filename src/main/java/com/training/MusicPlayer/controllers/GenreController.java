@@ -4,6 +4,7 @@ import com.training.MusicPlayer.models.Genre;
 import com.training.MusicPlayer.models.SongPage;
 import com.training.MusicPlayer.response.ResponseObject;
 import com.training.MusicPlayer.services.serviceimpl.GenreServiceMongoDBImpl;
+import com.training.MusicPlayer.services.serviceimpl.GenreServiceSQLImpl;
 import com.training.MusicPlayer.services.serviceimpl.SongServiceMongoDBImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import java.util.*;
 public class GenreController {
     @Autowired
     private GenreServiceMongoDBImpl genreService;
+    @Autowired
+    private GenreServiceSQLImpl genreServiceSQL;
     @Autowired
     private SongServiceMongoDBImpl songService;
     private static final Logger logger = LoggerFactory.getLogger(SongController.class);
@@ -85,6 +88,15 @@ public class GenreController {
                     new ResponseObject("NOT_ACCEPTABLE", "Missing required ID", null)
             );
         }
+    }
+
+    @GetMapping(value = "/sql/all")
+    ResponseEntity<ResponseObject> getAllGenresSQL() {
+        logger.info("Getting genre list:...");
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Success", genreServiceSQL.getAll())
+        );
     }
 
 }

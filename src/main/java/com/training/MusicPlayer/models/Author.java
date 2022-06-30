@@ -1,5 +1,6 @@
 package com.training.MusicPlayer.models;
 
+import com.training.MusicPlayer.entity.AuthorSQL;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -11,6 +12,11 @@ public class Author {
 
     public Author(String name) {
         this.name = name;
+    }
+
+    public void clone(AuthorSQL authorSQL) {
+        this.id = authorSQL.getAuthor_id();
+        this.name = authorSQL.getName();
     }
 
     @Override

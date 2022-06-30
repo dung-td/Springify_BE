@@ -1,12 +1,15 @@
 package com.training.MusicPlayer.services.serviceimpl;
 
+import com.training.MusicPlayer.entity.AuthorSQL;
 import com.training.MusicPlayer.entity.GenreSQL;
+import com.training.MusicPlayer.models.Author;
 import com.training.MusicPlayer.models.Genre;
 import com.training.MusicPlayer.repositories.sql.GenreSQLRepository;
 import com.training.MusicPlayer.services.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +34,15 @@ public class GenreServiceSQLImpl implements GenreService {
 
     @Override
     public List<Genre> getAll() {
-        return null;
+        List<GenreSQL> genresSQL = repository.findAll();
+        List<Genre> genres = new ArrayList<>();
+        for (GenreSQL genreSQL:
+                genresSQL) {
+            Genre genre = new Genre();
+            genre.clone(genreSQL);
+            genres.add(genre);
+        }
+        return genres;
     }
 
     @Override

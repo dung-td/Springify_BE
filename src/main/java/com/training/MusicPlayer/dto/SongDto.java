@@ -36,6 +36,10 @@ public class SongDto {
         this.thumbnail = song.getThumbnail();
         this.updateAt = song.getDate();
         this.streams = Long.valueOf(song.getStream());
+        this.author = new Author();
+        this.genre = new Genre();
+        this.author.clone(song.getAuthor());
+        this.genre.clone(song.getGenre());
     }
 
     public SongDto(String id, String name, Author author, Genre genre, String src, String thumbnail, Date updateAt, Long streams) {

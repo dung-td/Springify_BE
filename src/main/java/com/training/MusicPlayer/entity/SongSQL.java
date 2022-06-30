@@ -15,11 +15,13 @@ public class SongSQL {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "author", nullable = false)
-    private String author;
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    private AuthorSQL author;
 
-    @Column(name = "genre", nullable = false)
-    private String genre;
+    @ManyToOne
+    @JoinColumn(name = "genre_id", nullable = false)
+    private GenreSQL genre;
 
     @Column(name = "updateAt", nullable = false)
     private Date date;
@@ -36,8 +38,8 @@ public class SongSQL {
     public void clone(SongDto songDto) {
         this.id = songDto.getId();
         this.name = songDto.getName();
-        this.author = songDto.getAuthor().getId();
-        this.genre = songDto.getGenre().getId();
+        this.author.clone(songDto.getAuthor());
+        this.genre.clone(songDto.getGenre());
         this.src = songDto.getSrc();
         this.thumbnail = songDto.getThumbnail();
         this.date = songDto.getUpdateAt();
@@ -63,19 +65,19 @@ public class SongSQL {
         this.name = name;
     }
 
-    public String getAuthor() {
+    public AuthorSQL getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(AuthorSQL author) {
         this.author = author;
     }
 
-    public String getGenre() {
+    public GenreSQL getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
+    public void setGenre(GenreSQL genre) {
         this.genre = genre;
     }
 
