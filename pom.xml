@@ -16,6 +16,10 @@
     <properties>
         <java.version>18</java.version>
     </properties>
+     <properties>
+        <sonar.organization>dung-td</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
     <dependencies>
 
         <dependency>
