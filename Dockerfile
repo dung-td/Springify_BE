@@ -8,7 +8,7 @@ RUN mvn clean package -DskipTests
 #
 # Package stage
 #
-FROM openjdk-17-jdk
+FROM openjdk:11-jdk-slim
 COPY --from=build /target/MusicPlayer-0.0.1-SNAPSHOT.jar MusicPlayer.jar
 # ENV PORT=8080
 EXPOSE 8080
