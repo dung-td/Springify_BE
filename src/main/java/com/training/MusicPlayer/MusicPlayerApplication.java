@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import com.cloudinary.*;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication()
 @EnableMongoRepositories
@@ -51,4 +52,9 @@ public class MusicPlayerApplication {
     public MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongodb(), "springify");
     }
+
+    @Bean
+	public RestTemplate getRestTemplate() {
+		return new RestTemplate();
+	}
 }
