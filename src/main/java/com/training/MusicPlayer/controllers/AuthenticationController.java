@@ -61,4 +61,12 @@ public class AuthenticationController {
                 new ResponseObject("error", "error", null)
         );
     }
+
+    @GetMapping(path = "/wakeup")
+    ResponseEntity<ResponseObject> wakeup() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Wake up successfully!", null)
+        );
+    }
+
 }
